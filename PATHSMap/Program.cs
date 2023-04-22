@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Timers;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PATHSMap
 {
@@ -30,19 +31,17 @@ namespace PATHSMap
             #endregion
 
             #region Timer to control API calls
-            _timer = new System.Timers.Timer(30000); // set the interval to 30 seconds (TEST VALUE ONLY)
+            _timer = new System.Timers.Timer(5000); // set the interval to 5 seconds (TEST VALUE ONLY)
             _timer.Elapsed += async (sender, e) => await RunApiCall(conn);
             _timer.Start();
             #endregion
 
             #region Blazor Startup
             var builder = WebApplication.CreateBuilder(args);
-            // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
             builder.Services.AddGeoBlazor();
             var app = builder.Build();
-            // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
@@ -123,10 +122,10 @@ namespace PATHSMap
                         
                         stormRepo.CreateStorm(temp);
                     }
-
+                    
                     #endregion
                 }
-
+                
             }
             #endregion
 
@@ -138,6 +137,7 @@ namespace PATHSMap
                     stormRepo.DeleteStorm(storm);
                 }
             }
+            
             #endregion
 
             #endregion

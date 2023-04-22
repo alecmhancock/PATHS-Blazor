@@ -24,7 +24,7 @@ namespace PATHSMap.Data
             var productValue = new ProductInfoHeaderValue("PATHSMap", "Alpha");
             client.DefaultRequestHeaders.UserAgent.Add(productValue);
             var response = client.GetAsync(url).Result;
-            var rawjson = response.Content.ReadAsStringAsync().Result;
+            var rawjson =  response.Content.ReadAsStringAsync().Result;
             return rawjson;
         }
     }
