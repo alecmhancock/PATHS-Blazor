@@ -17,8 +17,6 @@ namespace PATHSMap
 {
     public class Program
     {
-
-
         public static void Main(string[] args)
         {
             
@@ -34,17 +32,25 @@ namespace PATHSMap
             #region Web client params
             var client = new HttpClient();
             new NwsApi(client);
-            var json = NwsApi.Callout("https://api.weather.gov/alerts/active/");
+
             #endregion
 
-            #region API call for data
+            #region Recurring API call for data && expiration/CRUD logic
+
+            #region API call, deserialization, and object creation
+            var json = NwsApi.Callout("https://api.weather.gov/alerts/active/");
             var currentTime = DateTime.Now;
-            //Naming parameter "json" will be live data, naming parameter "json2" will be test data.
-            //Make sure to comment out first "if" statement if test data is being utilized.
             Root NWSData = JsonConvert.DeserializeObject<Root>(json);
-            //Root NWSData = JsonConvert.DeserializeObject<Root>(json2);
+            var stormRepo = new StormRepository(conn);
+            var currentStorms = stormRepo.GetAllStorms();
+            bool newStorm = false;
+            #endregion
+
+            #region Loop through all storms returned
+
             foreach (var props in NWSData.features)
             {   //logic to remove test events, empty messages, or expired events.
+                var temp = new Storm();
                 if (props.properties.expires < currentTime || props.properties.headline == null || props.properties.@event == "Test Message")
                 {
                     continue;
@@ -54,9 +60,11 @@ namespace PATHSMap
                     continue;
                 }
                 if (props.properties.@event == "Severe Thunderstorm Warning" || props.properties.@event == "Tornado Warning")
-                {
+               
 
+                {
                     #region logic to break down the list<list<list<double>>> hierarchy defined by the API for coordinates
+
                     var coordlist = new List<double>();
                     foreach (var list1 in props.geometry.coordinates)
                     {
@@ -66,10 +74,11 @@ namespace PATHSMap
                                 coordlist.Add(coords);
                         }
                     }
+
                     #endregion
-                    var stormRepo = new StormRepository(conn);
-                    var temp = new Storm();
-                    // Futureproofing for OO implementation
+
+                    #region Assigning temporary object properties
+
                     temp.headline = props.properties.headline;
                     temp.id = props.properties.id;
                     temp.expiration = props.properties.expires;
@@ -77,14 +86,45 @@ namespace PATHSMap
                     temp.description = props.properties.description;
                     temp.messageType = props.properties.messageType;
                     var motionString = props.properties.parameters.eventMotionDescription.ToString();
-                    temp.eventType = props.properties.@event;
-                    //DB insert
-                    stormRepo.CreateStorm(props.properties.id, props.properties.headline,
-                        props.properties.areaDesc, props.properties.expires, props.properties.description,
-                        props.properties.messageType, motionString, props.properties.@event);
-                }
+                    temp.@event = props.properties.@event;
 
+                    #endregion
+
+                    #region CRUD functions for SQL database
+
+                    foreach (var storm in currentStorms)
+                    {
+                        if (storm.id == props.properties.id && props.properties.messageType.ToLower() == "update")
+                        {
+                            stormRepo.UpdateStorm(temp);
+                        }
+                        else if (storm.id == props.properties.id && props.properties.messageType.ToLower() == "cancel")
+                        {
+                            stormRepo.DeleteStorm(temp);
+                        }
+                        else
+                        {
+                            newStorm = true;
+                            stormRepo.CreateStorm(temp);
+                        }
+                    }
+
+                    #endregion
+                }
+                
             }
+            #endregion
+
+            #region Expiration logic for storms that are no longer active
+            foreach (var storm in currentStorms)
+            {
+                if (storm.expiration < currentTime)
+                {
+                    stormRepo.DeleteStorm(storm);
+                }
+            }
+            #endregion
+
             #endregion
 
             #region Blazor Startup

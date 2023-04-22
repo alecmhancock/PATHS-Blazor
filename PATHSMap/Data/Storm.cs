@@ -9,6 +9,6 @@
         public string description { get; set; }
         public string motion { get; set; }
         public string messageType { get; set; }
-        public string eventType { get; set; }
+        public string @event { get; set; }
     }
 }
