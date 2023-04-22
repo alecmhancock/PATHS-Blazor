@@ -10,11 +10,15 @@ namespace PATHSMap.Data
         {
             _conn = conn;
         }
+
+
+
         public void CreateStorm(Storm storm)
         {
             _conn.Execute("INSERT INTO Storm (headline, areaDesc, expiration, id, description, motion, messageType, eventType) VALUES (@headline, @areaDesc, @expiration, @id, @description, @motion, @messageType, @eventType);",
                 new { id = storm.id, headline = storm.headline, expiration = storm.expiration, areaDesc = storm.areaDesc, description = storm.description, messageType = storm.messageType, motion = storm.motion, eventType = storm.@event });
         }
+
         public IEnumerable<Storm> GetAllStorms()
         {
             return _conn.Query<Storm>("SELECT * FROM Storm;");
@@ -26,6 +30,9 @@ namespace PATHSMap.Data
                                new { id = storm.id, headline = storm.headline, expiration = storm.expiration, areaDesc = storm.areaDesc, description = storm.description, messageType = storm.messageType, motion = storm.motion, eventType = storm.@event});
         }
         
-        public void DeleteStorm(Storm storm) { _conn.Execute("DELETE FROM Storm WHERE id = @id;", new { id = storm.id });}
+        public void DeleteStorm(Storm storm) 
+        { 
+            _conn.Execute("DELETE FROM Storm WHERE id = @id;", new { id = storm.id });
+        }
     }
 }
