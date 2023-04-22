@@ -17,10 +17,11 @@ namespace PATHSMap
 {
     public class Program
     {
+
+
         public static void Main(string[] args)
         {
-            var currentTime = DateTime.Now;
-
+            
             #region SQL Server Connection
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -37,6 +38,7 @@ namespace PATHSMap
             #endregion
 
             #region API call for data
+            var currentTime = DateTime.Now;
             //Naming parameter "json" will be live data, naming parameter "json2" will be test data.
             //Make sure to comment out first "if" statement if test data is being utilized.
             Root NWSData = JsonConvert.DeserializeObject<Root>(json);
@@ -67,6 +69,7 @@ namespace PATHSMap
                     #endregion
                     var stormRepo = new StormRepository(conn);
                     var temp = new Storm();
+                    // Futureproofing for OO implementation
                     temp.headline = props.properties.headline;
                     temp.id = props.properties.id;
                     temp.expiration = props.properties.expires;
@@ -75,6 +78,7 @@ namespace PATHSMap
                     temp.messageType = props.properties.messageType;
                     var motionString = props.properties.parameters.eventMotionDescription.ToString();
                     temp.eventType = props.properties.@event;
+                    //DB insert
                     stormRepo.CreateStorm(props.properties.id, props.properties.headline,
                         props.properties.areaDesc, props.properties.expires, props.properties.description,
                         props.properties.messageType, motionString, props.properties.@event);
