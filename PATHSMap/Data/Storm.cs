@@ -10,5 +10,7 @@
         public string motion { get; set; }
         public string messageType { get; set; }
         public string @event { get; set; }
+
+        public string refId { get; set; }
     }
 }

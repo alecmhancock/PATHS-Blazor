@@ -31,7 +31,7 @@ namespace PATHSMap
             #endregion
 
             #region Timer to control API calls
-            _timer = new System.Timers.Timer(5000); // set the interval to 5 seconds (TEST VALUE ONLY)
+            _timer = new System.Timers.Timer(30000); // set the interval to 30 seconds (TEST VALUE ONLY)
             _timer.Elapsed += async (sender, e) => await RunApiCall(conn);
             _timer.Start();
             #endregion
@@ -83,7 +83,8 @@ namespace PATHSMap
                 if (props.properties.@event == "Severe Thunderstorm Warning" || props.properties.@event == "Tornado Warning")
                 {
                     #region logic to break down the list<list<list<double>>> hierarchy defined by the API for coordinates
-
+                    var references = props.properties.references.ToString();
+                    
                     var coordlist = props.geometry.coordinates
                     .SelectMany(list1 => list1)
                     .SelectMany(items => items)
@@ -101,28 +102,37 @@ namespace PATHSMap
                     temp.messageType = props.properties.messageType;
                     var motionString = props.properties.parameters.eventMotionDescription.ToString();
                     temp.@event = props.properties.@event;
+                    foreach (var reference in props.properties.references)
+                    {
+                        temp.refId = reference.id;
+                    }
+                   
 
                     #endregion
 
                     #region CRUD functions for SQL database
 
-                    var stormToUpdate = currentStorms.FirstOrDefault(storm => storm.id == props.properties.id && props.properties.messageType.ToLower() == "update");
-                    var stormToCancel = currentStorms.FirstOrDefault(storm => storm.id == props.properties.id && props.properties.messageType.ToLower() == "cancel");
-
-                    if (stormToUpdate != null)
+                    foreach (var storm in currentStorms)
                     {
-                        stormRepo.UpdateStorm(temp);
-                    }
-                    else if (stormToCancel != null)
-                    {
-                        stormRepo.DeleteStorm(temp);
-                    }
-                    else
-                    {
+                        if (storm.id == props.properties.id)
+                        {
+                            continue;
+                        }
+                        else if (storm.id == temp.refId && temp.messageType.ToLower() == "update")
+                        {
+                            stormRepo.UpdateStorm(temp);
+                        }
                         
-                        stormRepo.CreateStorm(temp);
+                        else if (storm.id == temp.refId && props.properties.messageType.ToLower() == "cancel")
+                        {
+                            stormRepo.DeleteStorm(temp);
+                        }
+                        else
+                        {
+                            stormRepo.CreateStorm(temp);
+                        }
                     }
-                    
+
                     #endregion
                 }
                 

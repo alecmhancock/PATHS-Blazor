@@ -6,13 +6,15 @@
 
 main {
     flex: 1;
-    background-color: gray;
+    background-color: black;
     color: aliceblue;
     
 }
 
 .sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    background: black;
+    background-image: linear-gradient(90deg, rgba(96,96,96,0.9357128267973857) 0%, rgba(39,48,57,0.9422487745098039) 4%, rgba(0,0,0,0.8703533496732025) 35%);
+    border-right: 1px solid #d6d5d5;
     
 }
 

@@ -8,12 +8,13 @@
 <link href="EventList.razor.css" rel="stylesheet" />
 <div class="container">
     <div class="content">
+        <p>Last database inquiry was at @lastInquiryTime Central Time.</p>
         @if (storms.Any())
         {
             @foreach (var storm in storms)
             {
                 <h3>@storm.headline</h3>
-                <p>@storm.description</p>
+                /*<p>@storm.description</p>*/
             }
         }
         else
@@ -21,7 +22,7 @@
             <p>No active storms</p>
         }
 
-        <p>Last database inquiry was at @lastInquiryTime Central Time.</p>
+        
 
         @code {
             private IEnumerable<Storm> storms = new List<Storm>();
@@ -43,7 +44,7 @@
 
                 while (true)
                 {
-                    await Task.Delay(5000);
+                    await Task.Delay(30000);
 
                     conn = new SqlConnection(connString);
                     {
