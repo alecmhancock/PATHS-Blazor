@@ -34,5 +34,7 @@ namespace PATHSMap.Data
         { 
             _conn.Execute("DELETE FROM Storm WHERE id = @id;", new { id = storm.id });
         }
+
+        
     }
 }

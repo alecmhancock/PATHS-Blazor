@@ -1,4 +1,9 @@
-﻿@page "/"
+﻿@using PATHSMap.Data
+@using PATHSMap
+@page "/"
+
+
+
 <PageTitle>PATHS Map</PageTitle>
 <html>
 <head>
@@ -7,6 +12,7 @@
             padding: 3vh;
             text-align: center;
             border: 3px;
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
         }
     </style>
 </head>
@@ -15,19 +21,7 @@
 
 </body>
 </html>
-<MapView Longitude="_longitude" Latitude="_latitude" Zoom="4" Style="height: 85vh; width: 100%;">
-    <Map ArcGISDefaultBasemap="arcgis-streets">
-    </Map>
-</MapView>
 
-@code {
-    private readonly double _latitude = 38.512431;
-    private readonly double _longitude = -86.797870;
-}
-
-<link href="_content/dymaptic.GeoBlazor.Core" />
-<link href="_content/dymaptic.GeoBlazor.Core/assets/esri/themes/dark/main.css" rel="stylesheet" />
-<link href="YourProject.styles.css" rel="stylesheet" />
 
 
 
