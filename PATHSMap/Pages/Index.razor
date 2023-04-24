@@ -29,7 +29,8 @@
     <h1>PATHS Map</h1>
 	<article>
 		<Map width="95vh" height="800px"
-			 Parameters="parameters">
+			 Parameters="parameters"
+			GeoJSON_strings="@date_geojson.ToArray()">
 		</Map>
 	</article>
 </body>
@@ -44,11 +45,21 @@
 				latitude = 36.961028
 
 			},
+			map_scale = new Map.MapScale()
+			{
+				has = true,
+				meters = false,
+				miles = true
+			},
 			zoom_level = 5
 		};
-		
+	List<string> date_geojson = new List<string>()
+{
+   "[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-80.469999999999999,35.5],[-80.939999999999998,35.469999999999999],[-80.9599999,35.530000000000001],[-80.939999999999998,35.530000000000001],[-80.9599999,35.550000000000004],[-80.950000000000003,35.550000000000004],[-80.9599999,35.570000000000007],[-80.950000000000003,35.580000000000005],[-80.530000000000001,35.659999900000003],[-80.469999999999999,35.5]]]},\"properties\":{\"name\":\"Tornado\"}}]"
+};
 
 
 
 }
 
+	
