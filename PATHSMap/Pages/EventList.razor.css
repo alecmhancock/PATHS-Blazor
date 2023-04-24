@@ -11,3 +11,7 @@
     text-align: center;
 
 }
+
+p{
+    overscroll-behavior-y: contain;
+}

@@ -5,23 +5,50 @@
 
 
 <PageTitle>PATHS Map</PageTitle>
-<html>
 <head>
     <style>
         h1 {
             padding: 3vh;
             text-align: center;
             border: 3px;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+			background-color: black;
+			color: aliceblue;
         }
+		article {
+			max-width: auto;
+			display: flex;
+			justify-content: center;
+			background-color: black;
+
+		}
+		
+		
     </style>
 </head>
 <body>
     <h1>PATHS Map</h1>
-
+	<article>
+		<Map width="95vh" height="800px"
+			 Parameters="parameters">
+		</Map>
+	</article>
 </body>
-</html>
+
+@code {
+	//map initialization parameters
+	Map.LoadParameters parameters = new Map.LoadParameters()
+		{
+			location = new Map.Location()
+			{
+				longitude = -88.311486,
+				latitude = 36.961028
+
+			},
+			zoom_level = 5
+		};
+		
 
 
 
+}
 

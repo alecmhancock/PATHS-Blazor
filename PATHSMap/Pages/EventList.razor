@@ -23,11 +23,13 @@
         }
 
         
-
+        
         @code {
+            //DB query logic for event list
+            //Only the storms that were successfully created in the DB will be displayed
             private IEnumerable<Storm> storms = new List<Storm>();
             private string lastInquiryTime = "";
-
+            
             protected override async Task OnInitializedAsync()
             {
                 var config = new ConfigurationBuilder()

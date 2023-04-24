@@ -10,6 +10,7 @@ main {
     color: aliceblue;
 }
 
+
 .sidebar {
     background: black;
     background-image: linear-gradient(90deg, rgba(96,96,96,0.9357128267973857) 0%, rgba(39,48,57,0.9422487745098039) 4%, rgba(0,0,0,0.8703533496732025) 35%);

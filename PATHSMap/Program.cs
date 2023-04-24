@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
 using PATHSMap.Data;
-using dymaptic.GeoBlazor.Core;
 using System.Data;
 using System.Data.SqlClient;
 using System.Timers;
@@ -41,7 +40,6 @@ namespace PATHSMap
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddGeoBlazor();
             var app = builder.Build();
             if (!app.Environment.IsDevelopment())
             {
@@ -121,12 +119,13 @@ namespace PATHSMap
                         }
                         else if (storm.id == temp.refId && temp.messageType.ToLower() == "update")
                         {
-                            stormRepo.UpdateStorm(temp);
-                        }
+							stormRepo.DeleteStorm(storm);
+							stormRepo.CreateStorm(temp);
+						}
                         
                         else if (storm.id == temp.refId && props.properties.messageType.ToLower() == "cancel")
                         {
-                            stormRepo.DeleteStorm(temp);
+                            stormRepo.DeleteStorm(storm);
                         }
                         else
                         {
