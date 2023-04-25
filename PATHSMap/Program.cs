@@ -6,6 +6,7 @@ using System.Timers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Newtonsoft.Json.Linq;
 
 namespace PATHSMap
 {
@@ -31,7 +32,7 @@ namespace PATHSMap
             #endregion
 
             #region Timer to control API calls
-            _timer = new System.Timers.Timer(30000); // set the interval to 30 seconds (TEST VALUE ONLY)
+            _timer = new System.Timers.Timer(5000); // set the interval to 30 seconds (TEST VALUE ONLY)
             _timer.Elapsed += async (sender, e) => await RunApiCall(conn);
             _timer.Start();
             #endregion
@@ -51,6 +52,7 @@ namespace PATHSMap
             app.UseRouting();
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
+            builder.Logging.AddConsole();
             app.Run();
             #endregion
         }
@@ -60,10 +62,11 @@ namespace PATHSMap
 
             #region API call, deserialization, and object creation
             var json = NwsApi.Callout("https://api.weather.gov/alerts/active/");
+            var json2 = File.ReadAllText(@"C:\Users\Administrator\Documents\Programming\PATHS\PATHSMap\temp.json");
             var currentTime = DateTime.Now;
-            Root NWSData = JsonConvert.DeserializeObject<Root>(json);
+            Root NWSData = JsonConvert.DeserializeObject<Root>(json2);
             var stormRepo = new StormRepository(conn);
-            var currentStorms = stormRepo.GetAllStorms();
+            
             #endregion
 
             #region Loop through all storms returned
@@ -71,10 +74,10 @@ namespace PATHSMap
             foreach (var props in NWSData.features)
             {   //logic to remove test events, empty messages, or expired events.
                 var temp = new Storm();
-                if (props.properties.expires < currentTime || props.properties.headline == null || props.properties.@event == "Test Message")
-                {
-                    continue;
-                }
+                //if (props.properties.expires < currentTime || props.properties.headline == null || props.properties.@event == "Test Message")
+                //{
+                //    continue;
+                //}
                 if (props.geometry == null)
                 {
                     continue;
@@ -83,7 +86,7 @@ namespace PATHSMap
                 {
                     #region logic to break down the list<list<list<double>>> hierarchy defined by the API for coordinates
                     var references = props.properties.references.ToString();
-                    
+
                     var coordlist = props.geometry.coordinates
                     .SelectMany(list1 => list1)
                     .SelectMany(items => items)
@@ -101,57 +104,64 @@ namespace PATHSMap
                     temp.messageType = props.properties.messageType;
                     var motionString = props.properties.parameters.eventMotionDescription.ToString();
                     temp.@event = props.properties.@event;
+
+                    JObject jObject = JObject.FromObject(props.geometry);
+                    string geometryString = jObject.ToString(Newtonsoft.Json.Formatting.None);
+                    var stringcorrect = (@"""" + "[" + geometryString.Replace("\"", "\\\"") + "]" + @"""");
+                    temp.geometry = stringcorrect;
                     foreach (var reference in props.properties.references)
                     {
                         temp.refId = reference.id;
                     }
-                   
+
 
                     #endregion
 
                     #region CRUD functions for SQL database
 
-                    foreach (var storm in currentStorms)
+                    var existingStorm = stormRepo.GetStormById(temp.id);
+
+                    if (existingStorm == null)
                     {
-                        if (storm.id == props.properties.id)
+                        stormRepo.CreateStorm(temp);
+                    }
+                    else
+                    {
+                        if (temp.messageType.ToLower() == "update" && temp.refId == existingStorm.id)
                         {
-                            continue;
+                            stormRepo.UpdateStorm(temp);
                         }
-                        else if (storm.id == temp.refId && temp.messageType.ToLower() == "update")
+                        else if (temp.messageType.ToLower() == "cancel" && temp.refId == existingStorm.id)
                         {
-							stormRepo.DeleteStorm(storm);
-							stormRepo.CreateStorm(temp);
-						}
-                        
-                        else if (storm.id == temp.refId && props.properties.messageType.ToLower() == "cancel")
-                        {
-                            stormRepo.DeleteStorm(storm);
+                            stormRepo.DeleteStorm(existingStorm);
                         }
-                        else
+                        else if (temp.messageType.ToLower() == "alert" && temp.id == existingStorm.id)
                         {
+                            stormRepo.DeleteStorm(existingStorm);
                             stormRepo.CreateStorm(temp);
                         }
                     }
 
+
                     #endregion
                 }
-                
+
             }
             #endregion
 
             #region Expiration logic for storms that are no longer active
-            foreach (var storm in currentStorms)
-            {
-                if (storm.expiration < currentTime)
-                {
-                    stormRepo.DeleteStorm(storm);
-                }
-            }
+            //foreach (var storm in currentStorms)
+            //{
+            //    if (storm.expiration < currentTime)
+            //    {
+            //        stormRepo.DeleteStorm(storm);
+            //    }
+            //}
 
             #endregion
 
             #endregion
-            
+
 
         }
     }

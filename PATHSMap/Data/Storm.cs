@@ -12,5 +12,9 @@
         public string @event { get; set; }
 
         public string refId { get; set; }
+
+        public string geometry { get; set; }
+
+       
     }
 }
