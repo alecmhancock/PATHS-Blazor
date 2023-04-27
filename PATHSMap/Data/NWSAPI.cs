@@ -1,12 +1,13 @@
-﻿using System.Net.Http.Headers;
+﻿using Newtonsoft.Json.Linq;
+using System.Net.Http.Headers;
 
 namespace PATHSMap.Data
 {
-    public class APIAccess
+    public class NWSAPI
     {
         //setting up http client to make api calls
         private HttpClient _client;
-        public APIAccess(HttpClient client)
+        public NWSAPI(HttpClient client)
         {
             _client = client;
         }
@@ -18,7 +19,7 @@ namespace PATHSMap.Data
             return json;
         }   
 
-        public static string Callout (string url)
+        public static string CalloutNWS (string url)
         {
             var client = new HttpClient();
             var productValue = new ProductInfoHeaderValue("PATHSMap", "Alpha");
@@ -27,7 +28,15 @@ namespace PATHSMap.Data
             var rawjson =  response.Content.ReadAsStringAsync().Result;
             return rawjson;
         }
-
+        public static string CalloutOWM (string language, string units, string zip)
+        {
+            string key = File.ReadAllText("appsettings.json");
+            string APIkey = JObject.Parse(key).GetValue("OpenWeatherMapAPIKey").ToString();
+            var client = new HttpClient();
+            var response = client.GetAsync("https://api.openweathermap.org/data/2.5/weather?zip={zip code},{country code}&appid={API key}").Result;
+            var rawjson =  response.Content.ReadAsStringAsync().Result;
+            return rawjson;
+        }
         
     }
 }

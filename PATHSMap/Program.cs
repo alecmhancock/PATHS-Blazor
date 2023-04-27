@@ -31,7 +31,7 @@ namespace PATHSMap
 
             #region Web client params
             var client = new HttpClient();
-            new APIAccess(client);
+            new NWSAPI(client);
 
             #endregion
 
@@ -66,9 +66,11 @@ namespace PATHSMap
             #region Recurring API call for data && expiration/CRUD logic
 
             #region API call, deserialization, and object creation
-            var json = APIAccess.Callout("https://api.weather.gov/alerts/active/");
+            var json = NWSAPI.CalloutNWS("https://api.weather.gov/alerts/active/");
             var json2 = File.ReadAllText(@"C:\Users\Administrator\Documents\Programming\PATHS\PATHSMap\temp.json");
+
             var currentTime = DateTime.Now;
+
             Root NWSData = JsonConvert.DeserializeObject<Root>(json2);
             var stormRepo = new StormRepository(conn);
             

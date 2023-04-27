@@ -8,62 +8,70 @@
 <link href="Index.razor.css" rel="stylesheet">
 <PageTitle>Home</PageTitle>
 <body>
-    <MudText Class ="mb-10 mt-10" Typo="Typo.h5" Align="Align.Center">Welcome to paths!</MudText>
+    <MudText Class="mb-10 mt-10" Typo="Typo.h5" Align="Align.Center">Welcome to paths!</MudText>
 
     <MudText Class="mb-5 mt-5" Typo="Typo.body2" Align="Align.Center">Enter your zipcode below for your forecast</MudText>
-    
-        
-        <div class="userinput">
-            <MudTextField @bind-Value="userLocation" FullWidth="false" Label="Zipcode"  Variant="Variant.Outlined"></MudTextField>
-        </div>
-        
-        <div class="inputmenus">
-        <MudSelect T="string" Label="Units" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+
+
+    <div class="userinput">
+        <MudTextField @bind-Value="userZip" FullWidth="false" Label="Zipcode" Variant="Variant.Outlined"></MudTextField>
+    </div>
+
+    <div class="inputmenus">
+        <MudSelect T="string" Label="Units" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" @bind-Value="userUnits">
             <MudSelectItem Value="@("Imperial")" />
             <MudSelectItem Value="@("Metric")" />
-         
         </MudSelect>
-        <MudSelect T="string" Label="Language" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+        <MudSelect T="string" Label="Language" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" @bind-Value="userLanguage">
             <MudSelectItem Value="@("English")" />
             <MudSelectItem Value="@("French")" />
             <MudSelectItem Value="@("Spanish")" />
         </MudSelect>
-        </div>
-        <div class="submitbutton">
-            <MudButton Disabled="@_processing" OnClick="NavigateToTarget" Variant="Variant.Filled" Color="Color.Primary">
-                @if (_processing)
-                {
-                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                    <MudText Class="ms-2">Loading</MudText>
-                }
-                else
-                {
+    </div>
+    <div class="submitbutton">
+        <MudButton Disabled="@_processing" OnClick="NavigateToTarget" Variant="Variant.Filled" Color="Color.Primary">
+            @if (_processing)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Loading</MudText>
+            }
+            else
+            {
                 <MudText>Get Weather</MudText>
-                }
-            </MudButton>
-        </div>
-      
-        
-    
+            }
+        </MudButton>
+    </div>
 </body>
 
 @code
-{   
-    public string? userLocation { get; set; }
+{
+    public string? userZip { get; set; }
     public string? userUnits { get; set; }
     public string? userLanguage { get; set; }
     private bool _processing = false;
 
+    //user creation for forecast page functionality
     async Task NavigateToTarget()
-    {   var userData = new UserData();
-        userData.location = userLocation;
+    {
+        var userData = new UserData();
+        userData.zip = userZip;
         userData.units = userUnits;
         userData.language = userLanguage;
-        
+        var config = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .Build();
+        string connString = config.GetConnectionString("DefaultConnection");
+        IDbConnection conn2 = new SqlConnection(connString);
+        {
+            var userRepo = new UserRepository(conn2);
+            userRepo.CreateUser(userData);
+            
+        }
+
         _processing = true;
         await Task.Delay(1000);
         NavigationManager.NavigateTo("Forecast");
         _processing = false;
-        
     }
 }

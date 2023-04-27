@@ -1,4 +1,10 @@
-﻿@page "/Forecast"
+﻿@using Microsoft.Data.SqlClient;
+@using Newtonsoft.Json.Linq;
+@using System.Data;
+@using PATHSMap.Data;
+@page "/Forecast"
+
+
 <PageTitle>Forecast</PageTitle>
 
 <MudText Class="mb-10 mt-10" Typo="Typo.h3" Align="Align.Center">Forecast</MudText>
@@ -6,7 +12,7 @@
     <MudPaper Class="mb-2" Elevation="3">
         <MudCard>
             <MudCardContent>
-                <MudText Class="mt-15" Align="Align.Center">Placeholder</MudText>
+                <MudText Class="mt-15" Align="Align.Center">@tempOverall</MudText>
                 <MudText Typo="Typo.body2" Align="Align.Center">Placeholderino</MudText>
             </MudCardContent>
         </MudCard>
@@ -16,5 +22,32 @@
 
 @code {
     
+    private IEnumerable<UserData> users = new List<UserData>();
+    protected override async Task OnInitializedAsync()
+    {
+        var config = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .Build();
+        string connString = config.GetConnectionString("DefaultConnection");
+        IDbConnection conn4 = new SqlConnection(connString);
+
+        var userRepo = new UserRepository(conn4);
+        users = userRepo.GetAllUsers();
+
+        var zipCode= users.First().zip;
+        var language = users.First().language;
+        var units = users.First().units;
+
+
+        HttpClient client = new HttpClient();
+        string settings = File.ReadAllText("appsettings.json");
+        string APIkey = JObject.Parse(settings).GetValue("OpenWeatherMapAPIKey").ToString();
+        var response = await client.GetStringAsync($"https://api.openweathermap.org/data/2.5/weather?zip={zipCode}&appid={APIkey}&lang={language}&units={units}");
+        Console.WriteLine(response);
+        var temp = double.Parse(JObject.Parse(response)["main"]["temp"].ToString());
+        temp = tempOverall;
+    }   
+    public double tempOverall { get; set; }
 
 }
