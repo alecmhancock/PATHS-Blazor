@@ -12,8 +12,9 @@ namespace PATHSMap.Data
         }
         public void CreateUser(UserData userdata)
         {
-            _conn.Execute("INSERT INTO UserData (zip, units, language) VALUES (@zip, @units, @language);",
-                new {zip = userdata.zip, units = userdata.units, language = userdata.language});
+            DateTime timecreated = DateTime.Now;
+            _conn.Execute("INSERT INTO UserData (zip, units, language, timecreated) VALUES (@zip, @units, @language, @timecreated);",
+                new {zip = userdata.zip, units = userdata.units, language = userdata.language, timecreated = userdata.timecreated});
         }
         public IEnumerable<UserData> GetAllUsers()
         {
@@ -21,7 +22,7 @@ namespace PATHSMap.Data
         }
         public void DeleteUser(UserData userdata)
         {
-            _conn.Execute("DELETE FROM UserData WHERE zip = @zip, units = @units, language = @language;", new { zip = userdata.zip, units = userdata.units, language = userdata.language});
+            _conn.Execute("DELETE FROM UserData WHERE timecreated = @t;", new { zip = userdata.zip, units = userdata.units, language = userdata.language});
         }
     }
 }

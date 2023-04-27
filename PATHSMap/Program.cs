@@ -31,7 +31,7 @@ namespace PATHSMap
 
             #region Web client params
             var client = new HttpClient();
-            new NWSAPI(client);
+            new APIAccess(client);
 
             #endregion
 
@@ -66,7 +66,7 @@ namespace PATHSMap
             #region Recurring API call for data && expiration/CRUD logic
 
             #region API call, deserialization, and object creation
-            var json = NWSAPI.CalloutNWS("https://api.weather.gov/alerts/active/");
+            var json = APIAccess.CalloutNWS("https://api.weather.gov/alerts/active/");
             var json2 = File.ReadAllText(@"C:\Users\Administrator\Documents\Programming\PATHS\PATHSMap\temp.json");
 
             var currentTime = DateTime.Now;
@@ -87,30 +87,20 @@ namespace PATHSMap
                 //}
                 if (props.properties.@event == "Severe Thunderstorm Warning" || props.properties.@event == "Tornado Warning")
                 {
-                    #region logic to break down the list<list<list<double>>> hierarchy defined by the API for coordinates
                     var references = props.properties.references.ToString();
-
-                    
-
-                    #endregion
-
                     #region Assigning temporary object properties
-
                     temp.headline = props.properties.headline;
                     temp.id = props.properties.id;
                     temp.expiration = props.properties.expires;
                     temp.areaDesc = props.properties.areaDesc;
                     temp.description = props.properties.description;
                     temp.messageType = props.properties.messageType;
-                    
                     temp.eventType = props.properties.@event;
                     temp.sent = props.properties.sent;
                     foreach (var reference in props.properties.references)
                     {
                         temp.refid = reference.id;
                     }
-
-
                     #endregion
 
                     #region CRUD functions for SQL database
@@ -137,14 +127,10 @@ namespace PATHSMap
                             stormRepo.CreateStorm(temp);
                         }
                     }
-
-
                     #endregion
                 }
-
             }
             #endregion
-
             #region Expiration logic for storms that are no longer active
             //var currentStorms = stormRepo.GetAllStorms();
             //foreach (var storm in currentStorms)

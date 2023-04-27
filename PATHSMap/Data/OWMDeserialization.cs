@@ -32,7 +32,7 @@ namespace PATHSMap.Data
             public double _1h { get; set; }
         }
 
-        public class RootOWM
+        public class Root
         {
             public Coord coord { get; set; }
             public List<Weather> weather { get; set; }
