@@ -71,7 +71,7 @@ namespace PATHSMap
 
             var currentTime = DateTime.Now;
 
-            Root NWSData = JsonConvert.DeserializeObject<Root>(json2);
+            Root NWSData = JsonConvert.DeserializeObject<Root>(json);
             var stormRepo = new StormRepository(conn);
             
             #endregion
@@ -131,15 +131,16 @@ namespace PATHSMap
                 }
             }
             #endregion
+
             #region Expiration logic for storms that are no longer active
-            //var currentStorms = stormRepo.GetAllStorms();
-            //foreach (var storm in currentStorms)
-            //{
-            //    if (storm.expiration < currentTime)
-            //    {
-            //        stormRepo.DeleteStorm(storm);
-            //    }
-            //}
+            var currentStorms = stormRepo.GetAllStorms();
+            foreach (var storm in currentStorms)
+            {
+                if (storm.expiration < currentTime)
+                {
+                    stormRepo.DeleteStorm(storm);
+                }
+            }
 
             #endregion
 

@@ -1,4 +1,13 @@
-﻿
+﻿.mud-main-content {
+    justify-content: center;
+}
+
+.cards {
+    margin: auto;
+    max-width: 55vh;
+    justify-items: center;
+}
+
 .userinput {
     display: flex;
     justify-content: center;

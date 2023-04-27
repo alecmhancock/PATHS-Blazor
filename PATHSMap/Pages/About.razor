@@ -1,0 +1,31 @@
+﻿@page "/About"
+<PageTitle>About</PageTitle>
+<body>
+<MudPaper Elevation="3">  
+    <MudText Typo="Typo.h2" Align="Align.Center">About</MudText>
+    <MudText Class="mb-15" Typo="Typo.h5" Align="Align.Center">PATHS is my passion project that I update on a regular basis. I wanted to create an opensource storm tracker that wasn't behind a paywall.</MudText>
+    <MudText Class="mb-15" Typo="Typo.h6" Align="Align.Center">You can find my links below if you'd like to connect.</MudText>
+    <div class="links">
+    <MudButton Class="mb-5" Href="https://github.com/alecmhancock"
+               Target="_blank"
+               Variant="Variant.Filled"
+               EndIcon="@Icons.Custom.Brands.GitHub"
+               Color="Color.Primary"
+               Disabled=@disabled>
+        GitHub
+    </MudButton>
+            <MudButton Class="mb-5" Href="https://linkedin.com/in/alecmhancock"
+                       Target="_blank"
+                       Variant="Variant.Filled"
+                       EndIcon="@Icons.Custom.Brands.LinkedIn"
+                       Color="Color.Primary"
+                       Disabled=@disabled>
+                LinkedIn
+            </MudButton>
+        </div>
+</MudPaper>
+</body>
+
+@code {
+    bool disabled = false;
+}
