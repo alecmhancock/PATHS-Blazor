@@ -1,23 +1,42 @@
 ﻿@inherits LayoutComponentBase
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-<div class="page">
-    <div class="sidebar" style="@IconMenuCssClass">
-        <NavMenu ShowIconMenu="ToggleIconMenu" />
-    </div>
-
-    <main>
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+<MudLayout>
+    <MudAppBar Elevation="1">
+        @if (_drawerOpen == false)
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        }
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+        <MudDrawerHeader>
+            @if (_drawerOpen == true)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            }
+            <MudText Typo="Typo.h5" Class="mt-1">Menu</MudText>
+        </MudDrawerHeader>
+        <NavMenu />
+        <MudSpacer />
+        <MudSwitch @bind-Checked="@_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Toggle Dark Mode" Object/>
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+    
+</MudLayout>
 
 @code {
-    private bool _iconMenuActive { get; set; }
-    private string? IconMenuCssClass => _iconMenuActive ? "width: 80px;" : null;
+    private MudTheme _theme = new();
+    private bool _isDarkMode;
+    bool _drawerOpen = true;
 
-    protected void ToggleIconMenu(bool iconMenuActive)
+    void DrawerToggle()
     {
-        _iconMenuActive = iconMenuActive;
+        _drawerOpen = !_drawerOpen;
     }
 }

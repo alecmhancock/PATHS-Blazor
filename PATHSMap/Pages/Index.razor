@@ -4,102 +4,66 @@
 @using System.Data;
 @using Microsoft.Extensions.Configuration;
 @page "/"
-
-
-
-
-<PageTitle>PATHS Map</PageTitle>
-<head>
-    <style>
-        h1 {
-            padding: 3vh;
-            text-align: center;
-            border: 3px;
-            background-color: black;
-            color: aliceblue;
-        }
-
-        article {
-            max-width: auto;
-            display: flex;
-            justify-content: center;
-            background-color: black;
-        }
-    </style>
-</head>
+@inject NavigationManager NavigationManager
+<link href="Index.razor.css" rel="stylesheet">
+<PageTitle>Home</PageTitle>
 <body>
-    <h1>PATHS Map</h1>
+    <MudText Class ="mb-10 mt-10" Typo="Typo.h5" Align="Align.Center">Welcome to paths!</MudText>
+
+    <MudText Class="mb-5 mt-5" Typo="Typo.body2" Align="Align.Center">Enter your zipcode below for your forecast</MudText>
     
-        <article>
-            
-            <Map width="85vh" height="800px"
-             Parameters="parameters"
-             GeoJSON_strings=@currentgeojson.ToArray()>
-            </Map>
-            
         
-            
-        </article>
+        <div class="userinput">
+            <MudTextField @bind-Value="userLocation" FullWidth="false" Label="Zipcode"  Variant="Variant.Outlined"></MudTextField>
+        </div>
+        
+        <div class="inputmenus">
+        <MudSelect T="string" Label="Units" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+            <MudSelectItem Value="@("Imperial")" />
+            <MudSelectItem Value="@("Metric")" />
+         
+        </MudSelect>
+        <MudSelect T="string" Label="Language" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+            <MudSelectItem Value="@("English")" />
+            <MudSelectItem Value="@("French")" />
+            <MudSelectItem Value="@("Spanish")" />
+        </MudSelect>
+        </div>
+        <div class="submitbutton">
+            <MudButton Disabled="@_processing" OnClick="NavigateToTarget" Variant="Variant.Filled" Color="Color.Primary">
+                @if (_processing)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Loading</MudText>
+                }
+                else
+                {
+                <MudText>Get Weather</MudText>
+                }
+            </MudButton>
+        </div>
+      
+        
     
 </body>
 
-@code {
-    //map initialization parameters
-    Map.LoadParameters parameters = new Map.LoadParameters()
-        {
-            location = new Map.Location()
-            {
-                longitude = -88.311486,
-                latitude = 36.961028
+@code
+{   
+    public string? userLocation { get; set; }
+    public string? userUnits { get; set; }
+    public string? userLanguage { get; set; }
+    private bool _processing = false;
 
-            },
-            map_scale = new Map.MapScale()
-            {
-                has = true,
-                meters = false,
-                miles = true
-            },
-            zoom_level = 5
-        };
-     
-    private IEnumerable<Storm> storms = new List<Storm>();
-    public List<string> currentgeojson = new List<string> { };
-
-    protected override async Task OnInitializedAsync()
-    {
-        var config = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json")
-            .Build();
-        string connString = config.GetConnectionString("DefaultConnection");
-        IDbConnection conn = new SqlConnection(connString);
-        {
-            var strlist = new List<string>();
-            var stormRepo = new StormRepository(conn);
-            storms = stormRepo.GetAllStorms();
-            foreach (var v in storms)
-            {
-                currentgeojson.Add(v.geometry);
-            }
-
-            
-            var join = string.Join(",", currentgeojson);
-            
-            Console.WriteLine(join);
-
-        }
-
-        while (true)
-        {
-            await Task.Delay(5000);
-
-            conn = new SqlConnection(connString);
-            {
-                var stormRepo = new StormRepository(conn);
-                storms = stormRepo.GetAllStorms();
-                
-                StateHasChanged();
-            }
-        }
+    async Task NavigateToTarget()
+    {   var userData = new UserData();
+        userData.location = userLocation;
+        userData.units = userUnits;
+        userData.language = userLanguage;
+        
+        _processing = true;
+        await Task.Delay(1000);
+        NavigationManager.NavigateTo("Forecast");
+        _processing = false;
+        
     }
 }

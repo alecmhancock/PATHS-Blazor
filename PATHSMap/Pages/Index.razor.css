@@ -1,0 +1,27 @@
+﻿
+.userinput {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 15%;
+    margin: 0 auto; 
+    box-sizing: border-box;
+}
+.inputmenus{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 15%;
+    margin: 0 auto; 
+    margin-top: 25px;
+    box-sizing: border-box;
+}
+.submitbutton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 15%;
+    margin: 0 auto;
+    margin-top: 50px;
+    box-sizing: border-box;
+}

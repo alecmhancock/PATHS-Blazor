@@ -2,11 +2,11 @@
 
 namespace PATHSMap.Data
 {
-    public class NwsApi
+    public class APIAccess
     {
         //setting up http client to make api calls
         private HttpClient _client;
-        public NwsApi(HttpClient client)
+        public APIAccess(HttpClient client)
         {
             _client = client;
         }

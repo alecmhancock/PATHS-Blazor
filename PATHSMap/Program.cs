@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Newtonsoft.Json.Linq;
+using System.Data.SqlTypes;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text.Json;
+using MudBlazor.Services;
 
 namespace PATHSMap
 {
@@ -27,7 +31,7 @@ namespace PATHSMap
 
             #region Web client params
             var client = new HttpClient();
-            new NwsApi(client);
+            new APIAccess(client);
 
             #endregion
 
@@ -41,6 +45,8 @@ namespace PATHSMap
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
+            builder.Services.AddMudServices();
+            builder.Logging.AddConsole();
             var app = builder.Build();
             if (!app.Environment.IsDevelopment())
             {
@@ -52,7 +58,6 @@ namespace PATHSMap
             app.UseRouting();
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
-            builder.Logging.AddConsole();
             app.Run();
             #endregion
         }
@@ -61,7 +66,7 @@ namespace PATHSMap
             #region Recurring API call for data && expiration/CRUD logic
 
             #region API call, deserialization, and object creation
-            var json = NwsApi.Callout("https://api.weather.gov/alerts/active/");
+            var json = APIAccess.Callout("https://api.weather.gov/alerts/active/");
             var json2 = File.ReadAllText(@"C:\Users\Administrator\Documents\Programming\PATHS\PATHSMap\temp.json");
             var currentTime = DateTime.Now;
             Root NWSData = JsonConvert.DeserializeObject<Root>(json2);
@@ -78,19 +83,12 @@ namespace PATHSMap
                 //{
                 //    continue;
                 //}
-                if (props.geometry == null)
-                {
-                    continue;
-                }
                 if (props.properties.@event == "Severe Thunderstorm Warning" || props.properties.@event == "Tornado Warning")
                 {
                     #region logic to break down the list<list<list<double>>> hierarchy defined by the API for coordinates
                     var references = props.properties.references.ToString();
 
-                    var coordlist = props.geometry.coordinates
-                    .SelectMany(list1 => list1)
-                    .SelectMany(items => items)
-                    .ToList();
+                    
 
                     #endregion
 
@@ -102,16 +100,12 @@ namespace PATHSMap
                     temp.areaDesc = props.properties.areaDesc;
                     temp.description = props.properties.description;
                     temp.messageType = props.properties.messageType;
-                    var motionString = props.properties.parameters.eventMotionDescription.ToString();
-                    temp.@event = props.properties.@event;
-
-                    JObject jObject = JObject.FromObject(props.geometry);
-                    string geometryString = jObject.ToString(Newtonsoft.Json.Formatting.None);
-                    var stringcorrect = (@"""" + "[" + geometryString.Replace("\"", "\\\"") + "]" + @"""");
-                    temp.geometry = stringcorrect;
+                    
+                    temp.eventType = props.properties.@event;
+                    temp.sent = props.properties.sent;
                     foreach (var reference in props.properties.references)
                     {
-                        temp.refId = reference.id;
+                        temp.refid = reference.id;
                     }
 
 
@@ -127,11 +121,11 @@ namespace PATHSMap
                     }
                     else
                     {
-                        if (temp.messageType.ToLower() == "update" && temp.refId == existingStorm.id)
+                        if (temp.messageType.ToLower() == "update" && temp.refid == existingStorm.id)
                         {
                             stormRepo.UpdateStorm(temp);
                         }
-                        else if (temp.messageType.ToLower() == "cancel" && temp.refId == existingStorm.id)
+                        else if (temp.messageType.ToLower() == "cancel" && temp.refid == existingStorm.id)
                         {
                             stormRepo.DeleteStorm(existingStorm);
                         }
@@ -150,6 +144,7 @@ namespace PATHSMap
             #endregion
 
             #region Expiration logic for storms that are no longer active
+            //var currentStorms = stormRepo.GetAllStorms();
             //foreach (var storm in currentStorms)
             //{
             //    if (storm.expiration < currentTime)

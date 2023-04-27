@@ -7,13 +7,14 @@
         public DateTime expiration { get; set; }
         public string id { get; set; }
         public string description { get; set; }
-        public string motion { get; set; }
+
         public string messageType { get; set; }
-        public string @event { get; set; }
+        public string eventType { get; set; }
 
-        public string refId { get; set; }
+        public string refid { get; set; }
 
-        public string geometry { get; set; }
+
+        public DateTime sent { get; set; }
 
        
     }

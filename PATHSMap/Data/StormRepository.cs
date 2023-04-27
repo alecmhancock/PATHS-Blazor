@@ -15,19 +15,19 @@ namespace PATHSMap.Data
 
         public void CreateStorm(Storm storm)
         {
-            _conn.Execute("INSERT INTO Storm (headline, areaDesc, expiration, id, description, motion, messageType, eventType, geometry) VALUES (@headline, @areaDesc, @expiration, @id, @description, @motion, @messageType, @eventType, @geometry);",
-                new { id = storm.id, headline = storm.headline, expiration = storm.expiration, areaDesc = storm.areaDesc, description = storm.description, messageType = storm.messageType, motion = storm.motion, eventType = storm.@event, geometry = storm.geometry});
+            _conn.Execute("INSERT INTO Storm (headline, areaDesc, expiration, id, description, messageType, eventType, sent, refid) VALUES (@headline, @areaDesc, @expiration, @id, @description, @messageType, @eventType, @sent, @refid);",
+                new { id = storm.id, headline = storm.headline, expiration = storm.expiration, areaDesc = storm.areaDesc, description = storm.description, messageType = storm.messageType, eventType = storm.eventType, sent = storm.sent, refid = storm.refid});
         }
 
         public IEnumerable<Storm> GetAllStorms()
         {
-            return _conn.Query<Storm>("SELECT * FROM Storm;");
+            return _conn.Query<Storm>("SELECT * FROM Storm ORDER BY sent DESC;");
         }
 
         public void UpdateStorm(Storm storm)
         {
-            _conn.Execute("UPDATE Storm SET headline = @headline, areaDesc = @areaDesc, expiration = @expiration, id = @id, description = @description, motion = @motion, messageType = @messageType, eventType = @eventType, geometry = @geometry WHERE id = @id;",
-                               new { id = storm.id, headline = storm.headline, expiration = storm.expiration, areaDesc = storm.areaDesc, description = storm.description, messageType = storm.messageType, motion = storm.motion, eventType = storm.@event, geometry = storm.geometry });
+            _conn.Execute("UPDATE Storm SET headline = @headline, areaDesc = @areaDesc, expiration = @expiration, id = @id, description = @description, messageType = @messageType, eventType = @eventType, sent = @sent, refid = @refid WHERE id = @refid;",
+                               new { id = storm.id, headline = storm.headline, expiration = storm.expiration, areaDesc = storm.areaDesc, description = storm.description, messageType = storm.messageType, eventType = storm.eventType, sent = storm.sent});
         }
         
         public void DeleteStorm(Storm storm) 
